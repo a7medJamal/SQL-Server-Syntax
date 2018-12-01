@@ -218,3 +218,45 @@ where CustomerID in (select  CustomerID from Orders )
 $ select ContactName , CompanyName from Customers
 where CustomerID in (select  CustomerID from Orders where OrderID=10550 )
 ```
+#  🚦  Check in SQL
+
+## use check in first time
+```
+$ create database test13
+go
+use test13
+create table customers (customersID int not null, customerName nvarchar(50) , cridetlimit decimal(18,2)
+,  constraint CK_limit check (cridetlimit <= 10000))
+```
+
+## use check after add table
+```
+$ alter table customers
+add constraint CK_limit check (cridetlimit <= 10000)
+```
+## to delete check from column
+```
+$ use test
+alter table customers
+drop constraint CK_limit 
+```
+
+#  🚦  Union and Index in SQL
+
+## use union in SQL
+```
+$ select Categories.CategoryName  from Categories
+union
+select Products.ProductName from Products
+```
+
+## use union all if want to show duplicate data in SQL
+```
+$ select Categories.CategoryName  from Categories
+union all 
+select Products.ProductName from Products
+```
+## use index in SQL
+```
+$ create index inx_Employee on employees(employeeid)
+```
