@@ -1,6 +1,6 @@
 # SQL Server Syntax
 ***
-## database and tables and column in SQL
+##  🚦  database and tables and column in SQL
 ###### for print any value
 ```
 $ print 5+7
