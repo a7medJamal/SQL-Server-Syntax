@@ -260,3 +260,192 @@ select Products.ProductName from Products
 ```
 $ create index inx_Employee on employees(employeeid)
 ```
+#  🚦  Views in SQL
+
+## create new view 
+```
+$ use Northwind
+go
+create view test_product_view
+as 
+select * from Employees
+```
+
+## for show data from view
+```
+$ use Northwind
+go
+alter view  test_product_view
+as
+select * from [Order Details]
+```
+## for delete view 
+```
+$ drop view  test_product_view
+```
+
+#  🚦  VAutomatic Functions in MSQL
+
+## to get datetime automatic in every rows
+```
+$ select GETDATE()
+```
+
+## to set default value 
+```
+$ ('Cairo')
+```
+## to get server name
+```
+$ select @@SERVERNAME
+```
+
+## to get service name
+```
+$ select @@VERSION
+```
+
+## to get version 
+```
+$ ('Cairo')
+```
+## to get how many connection to this server
+```
+$ select @@CONNECTIONS
+```
+
+## to get default language in server
+```
+$ select @@LANGUAGE
+```
+
+## use upper case 
+```
+$ select UPPER(FirstName) as 'FirstName', upper(LastName) as 'LastName' from Employees 
+
+```
+## use upper and lower case 
+```
+$ select UPPER(FirstName) + '' +LOWER (LastName) as fullName from Employees
+```
+
+## to get count of every character in column 
+```
+$ select len (firstname),firstname from Employees
+```
+
+## to take any charcher and make new column from left 
+```
+$ select left (firstname,3),firstname from Employees
+```
+## to take any charcher and make new column from right
+```
+$ select right(firstname,3),firstname from Employees
+```
+
+## to reverse characters from right to left
+```
+$  select stuff(firstname,1,3,LastName),firstname + ' ' + lastname from Employees
+
+```
+## use staff like union but in one table 
+```
+$ select UPPER(FirstName) + '' +LOWER (LastName) as fullName from Employees
+```
+
+## for count any recorders in table
+```
+$ select count (*)  from Orders 
+$ select count (ShipAddress)  from Orders 
+$ select count (ShipAddress)  from Orders where OrderID > 10525
+```
+
+## check what is max number in column 
+```
+$ select max(EmployeeID)from Orders
+```
+## check what is min number in column 
+```
+$ select min(EmployeeID)from Orders
+```
+
+## check what is avg number in column 
+```
+$ select avg(EmployeeID)from Orders
+avg= total of numbers / count of all this numbers
+```
+
+## use sum in table
+```
+$ select sum(EmployeeID) from Employees
+```
+## sum quantity with product_id and discount in the same table
+```
+$ select sum(Quantity) ,ProductID ,Discount from [Order Details] group by ProductID ,Discount order by ProductID
+```
+
+## use sum quantity of product from another table
+```
+$ select sum(Quantity) ,a.ProductID ,a.Discount ,b.ProductName from [Order Details] a inner join Products b on a.ProductID = b.ProductID
+ group by a.ProductID ,Discount ,ProductName order by a.ProductID
+```
+## use having like where but where dont use with group by
+```
+$ select sum(Quantity) ,a.ProductID ,a.Discount ,b.ProductName from [Order Details] a inner join Products b on a.ProductID = b.ProductID
+ group by a.ProductID ,Discount ,ProductName having a.productid=1
+```
+
+## get what is company name biggest name in table use Max
+```
+$  select max(len(CompanyName)),CompanyName from Customers
+```
+
+## get what is company name biggest name in table 
+```
+$  select CompanyName from Customers order by len(companyName) desc
+```
+## get day function
+```
+$ select day('2018/11/29')
+$ select day('getdate())
+```
+
+## get month function
+```
+$ select month('2018/11/29')
+$ select month(getdate())
+```
+## get year function
+```
+$ select year('2018/11/29')
+$ select year(getdate())
+```
+
+## to get what is day 
+```
+$ select datepart(WEEKDAY,GETDATE())  // number
+$ select datepart(WEEKDAY,'2018/11/29')  // number	
+$ select datename(WEEKDAY,GETDATE())  // text
+```
+
+## to increase any dayes to your date
+```
+$ select DATEADD(day,5, GETDATE())
+$ select DATEADD(MONTH,5, GETDATE())
+$ select DATEADD(MONTH,-1, GETDATE())
+$ select DATEADD(YEAR,-1, GETDATE())
+$ select DATENAME(weekday,dateadd(year,-1,getdate()))
+```
+## functions to get diffrents of date by convert.
+```
+$ select convert(nvarchar(10),getdate(),103)
+$ select convert(nvarchar(8),getdate(),3)
+$ select convert(nvarchar(20),getdate(),100)
+$ select convert(nvarchar(10),getdate(),1)
+$ select convert(nvarchar(10),getdate(),111)
+$ select convert(nvarchar(8),getdate(),11)
+```
+## functions to get diffrents of date by cast
+```
+$ select cast (DAY(getdate()) as nvarchar(2)) + '/'+ cast( MONTH(GETDATE()) as nvarchar(2)) + '/'+ cast( year(GETDATE()) as nvarchar(4)) 
+```
