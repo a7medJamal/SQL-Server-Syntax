@@ -1,4 +1,4 @@
-# **SQL Server Syntax**
+ # **SQL Server Syntax**   :exclamation: 🚀
 ***
 #  🚦  database and tables and column in SQL
 ## for print any value
