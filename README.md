@@ -79,3 +79,18 @@ drop constraint PK_my_Id
 ***
 #  🚦  Insert, update ,delete  in SQL
 
+## insert into table
+```
+$ insert into Employees (LastName,FirstName,Title) values ('midoo','midoo','sales manager')
+```
+
+## update into table
+```
+$ update Employees set LastName= 'ahmed' ,Title= 'title name' where EmployeeID=11
+```
+## delete column from table
+```
+$ delete from  Employees where EmployeeID=11
+```
+
+#  🚦  Select in SQL
