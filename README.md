@@ -175,3 +175,46 @@ $ select Orders.EmployeeID ,Employees.FirstName into	emp
 from Orders inner join Employees on Orders.EmployeeID= Employees.EmployeeID
 where Employees.EmployeeID=1  
 ```
+#  🚦  Join in SQL
+
+## use inner join in sql
+```
+$ select Categories.categoryID, Categories.CategoryName,Categories.Description ,Products.ProductName,Products.UnitPrice
+ from Categories inner join Products on Categories.CategoryID=Products.ProductID
+```
+
+## use left join in sql
+```
+$ select Categories.categoryID, Categories.CategoryName,Categories.Description ,Products.ProductName,Products.UnitPrice
+ from Categories left join Products on Categories.CategoryID=Products.ProductID
+```
+
+## use right join in sql
+```
+$ select Categories.categoryID, Categories.CategoryName,Categories.Description ,Products.ProductName,Products.UnitPrice
+ from Categories right join Products on Categories.CategoryID=Products.ProductID
+```
+## use full join in sql
+```
+$ select Categories.categoryID, Categories.CategoryName,Categories.Description ,Products.ProductName,Products.UnitPrice
+ from Categories full join Products on Categories.CategoryID=Products.ProductID
+```
+
+#  🚦  Sub Query in SQL
+
+## from make subquery from one query with =
+```
+$ select ContactName , CompanyName from Customers
+where CustomerID = (select top 1 CustomerID from Orders order by OrderID desc) 
+```
+
+## use subquery with in 
+```
+$ select ContactName , CompanyName from Customers
+where CustomerID in (select  CustomerID from Orders )
+```
+## use subquery with where
+```
+$ select ContactName , CompanyName from Customers
+where CustomerID in (select  CustomerID from Orders where OrderID=10550 )
+```
