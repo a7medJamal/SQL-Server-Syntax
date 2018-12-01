@@ -94,3 +94,84 @@ $ delete from  Employees where EmployeeID=11
 ```
 
 #  🚦  Select in SQL
+
+## select any column from table 
+```
+$ use Northwind
+select EmployeeID,LastName,Title from Employees
+```
+## select all column from table
+```
+$ use Northwind
+select * from Employees
+```
+
+## select only not match from column 
+```
+$ use Northwind
+select distinct City from Employees
+```
+## select only not match from column 
+```
+$ use Northwind
+select LastName from Employees where TitleOfCourtesy='Mr.' or City='London'
+select LastName from Employees where TitleOfCourtesy='Mr.' and City='London'
+```
+
+## use order by 
+```
+$ select * from Employees order by LastName
+```
+
+## use descinding and asc
+```
+$ select * from Employees order by LastName  desc
+$ select * from Employees order by LastName  asc
+```
+## select any rows without some rows
+```
+$ select [LastName],[Title] from Employees where [LastName] not in (select [LastName] from [Employees] where LastName='midoo' )
+```
+## use top in select
+```
+$ select top 5 * from Employees
+$ select top 5 EmployeeID,LastName from Employees
+$ select top 50 percent EmployeeID,LastName from Employees
+```
+
+## use alias in column 
+```
+$ select top 50 percent  EmployeeID as 'رقم الموظف',LastName as 'اسم الموظف' from Employees
+```
+## use * operator
+```
+$ select * , Discount* Quantity as 'الكميه' from [Order Details]
+```
+## select from table and make + to column
+```
+$ select Title,+ FirstName + ' ' +LastName as 'full name'  from Employees
+```
+## use in in where
+```
+$ select *  from Employees where BirthDate in ('8/12/1948', '8/12/1966')
+```
+
+## use like in select to search
+```
+$ select *  from Employees where FirstName like '%N%'
+```
+
+#  🚦  Select into in SQL
+
+## this for copy all data from any table to new table 
+```
+$ select * into customersInto5
+from Customers  
+where CompanyName ='Alfreds Futterkiste'
+```
+## use join and where with select into 
+```
+$ select Orders.EmployeeID ,Employees.FirstName into	emp
+from Orders inner join Employees on Orders.EmployeeID= Employees.EmployeeID
+where Employees.EmployeeID=1  
+```
