@@ -284,7 +284,7 @@ select * from [Order Details]
 $ drop view  test_product_view
 ```
 
-#  🚦  VAutomatic Functions in MSQL
+#  🚦  Automatic Functions in MSQL
 
 ## to get datetime automatic in every rows
 ```
