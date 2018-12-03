@@ -465,7 +465,7 @@ end
 
 ```
 #  🚦  Custome Function in SQL
-### Scalar-valued Function
+### Scalar-valued Function :point_left:
 
 ## create new function !!! if need to edit use  **   (alter)
 ```
@@ -579,7 +579,7 @@ end
 select  firstname , lastname ,TitleOfCourtesy,dbo.tesCase(TitleOfCourtesy) from Employees 
 ```
 
-### table-valued Function
+### table-valued Function :point_left:
 ## to make function to return table
 ```
 $ create function testtable(@myname nvarchar(50) )
