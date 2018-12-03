@@ -595,3 +595,447 @@ end
 
 select * from dbo.@TblTest('ahmed')
 ```
+
+
+#  🚦  Stored Procedures in SQL
+### ** dont use sp_ - with stored procedure because alot of sp_ in database after call performance not good , use any another keyword like (proc) :point_left:
+
+## create first stored procedure
+```
+$ create procedure proc_test1
+as
+begin
+select * from Employees
+end
+
+******* for use in sql server
+
+ $ execute test1
+ $ exec test1
+```
+
+## for run proc automatic
+```
+$ alter procedure proc_test1
+as
+begin
+select * from Employees
+end
+go
+
+******* for use in sql server
+exec test1
+```
+## use insert with proc
+```
+$ alter procedure test1
+as
+begin
+insert into  Employees (LastName,FirstName) values ('ahmed','midoo')
+end
+go
+
+******* for use in sql server
+exec test1
+```
+## use update with proc
+```
+$ alter proc test1
+as
+begin
+update  Employees  set LastName= 'mohammed' ,FirstName='ali' where EmployeeID=14
+end
+go
+
+******* for use in sql server
+exec test1
+```
+## use delete with proc
+```
+$ alter proc test1
+as
+begin
+delete from Employees  where EmployeeID=14
+end
+go
+
+******* for use in sql server
+exec test1
+```
+## use proc with parameters
+```
+$ alter proc test1 
+@Num int 
+as
+begin
+select * from Employees where EmployeeID = @Num
+end
+go
+
+******** for use
+	$ exec test1 2
+```
+## use proc for insert with parameter
+```
+$ alter proc test1 
+
+@myName nvarchar(50),
+@myCity nvarchar(50),
+@myJobId int
+as
+begin
+insert into Names(name,city,jobid) values (@myName,@myCity,@myJobId)
+end
+```
+## use proc with if condition
+```
+$ alter proc test1 
+
+@myName nvarchar(50),
+@myCity nvarchar(50),
+@myJobId int
+as
+begin
+declare @Name2 nvarchar(50)
+select @Name2 = Name from names where name=@myName
+
+if not @Name2 is null
+print 'Name is Not Valid'
+else
+insert into Names(name,city,jobid) values (@myName,@myCity,@myJobId)
+end
+go
+```
+## example 2 if with proc // check value from another table before insert data
+```
+$ alter proc test1 
+
+@myName nvarchar(50),
+@myCity nvarchar(50),
+@myJobId int
+as
+begin
+declare @Name2 int
+select @Name2 = jobId from jobs where jobId=@myJobId
+
+if @Name2 is null
+print 'jobId is Not Valid'
+else
+insert into Names(name,city,jobid) values (@myName,@myCity,@myJobId)
+end
+go
+```
+## use proc with if another example
+```
+$ create proc testCalc
+@my_Name int,
+@my_Salary decimal(18,2),
+@my_Bouns decimal(18,2),
+@My_Dis decimal(18,2),
+@MyNet decimal(18,2)
+as
+begin 
+if @my_Salary < 1500 and  @my_Salary > 1000
+set @my_Bouns = @my_Salary * 0.10 
+else
+if @my_Salary < 1000
+set @my_Bouns = @my_Salary * 0.5
+
+set @MyNet = @my_Salary+ @my_Bouns-@My_Dis
+
+insert into salary (name, salary,bouns,dis,net)
+ values (@my_Name,@my_Salary,@My_Dis,@MyNet)
+
+***************** for use
+	$ exec testCalc 2,1000,0,50,0 
+```
+## return value with proc -- return how many record in table
+```
+$ create proc testReturn
+as
+declare @Num as int
+select * from Employees
+set @Num= @@ROWCOUNT
+return @Num
+go
+
+************** for use
+	$ declare @count int
+exec @count = testReturn
+select @count
+```
+## use output param 
+```
+$ create proc testOutParam
+@MyName nvarchar (50)
+as
+begin
+select id from Names where Name=@MyName
+end
+************************* for use
+	$ exec testOutParam 'ahmed'
+```
+## use output param and get param from stored procedure (static value)
+```
+$ create proc testOutParam
+@MyName nvarchar (50),
+@MyID int output
+as
+set @MyID=500
+begin
+select id from Names where Name=@MyName
+end
+************************* for use
+	$ declare @NewId int
+exec testOutParam 'ahmed' , @NewId output
+select @NewId
+```
+## use output param and get param from stored procedure dynamic value)
+```
+$ create proc testOutParam
+@MyName nvarchar (50),
+@MyID int output
+as
+begin
+select @MyID=id from Names where Name=@MyName
+end
+************************* for use
+	$ declare @NewId int
+exec testOutParam 'ahmed' , @NewId output
+insert into salary (Name,salary,bouns,dis,net) vlaues
+ (@NewId,1000,100,100,1000)
+ select @NewId
+select * from salary
+```
+## insert into 2 table by stored procedure
+```
+$ create proc testIdentity
+@MyName nvarchar (50),
+@MyCity nvarchar (50),
+@MyJobId int ,
+@MySalary decimal(18,2)
+
+as
+begin
+
+declare @MyId int
+declare @MyBouns decimal(18,2) = @MySalary * 0.05
+declare @MyDis decimal(18,2) = @MySalary * 0.03
+declare @MyNet decimal(18,2) = @MySalary + @MyBouns - @MyDis
+
+insert into Names (name,city,jobID) values (@MyName,@MyCity,@MyJobId)
+
+set @MyID = (select SCOPE_IDENTITY())
+insert into salary (name,salary,bouns,dis ,net) values (@MyID,@MySalary,@MyBouns,@MyDis,@MyNet)
+
+********************** for use
+	$ exec testOutParam 'ahmed','cairo',1,10000
+
+```
+## transaction -update *in one time* from tabele to another table like 'Money between two acount in Bank' 
+```
+$ use Northwind
+go
+create proc testIdentity
+@MyName nvarchar (50),
+@MyCity nvarchar (50),
+@MyJobId int ,
+@MySalary decimal(18,2)
+as
+begin
+declare @MyId int
+declare @MyBouns decimal(18,2) = @MySalary * 0.05
+declare @MyDis decimal(18,2) = @MySalary * 0.03
+declare @MyNet decimal(18,2) = @MySalary + @MyBouns - @MyDis
+
+begin try
+	begin transaction
+
+		insert into Names (name,city,jobID) values (@MyName,@MyCity,@MyJobId)
+		set @MyID = (select SCOPE_IDENTITY())
+		insert into salary (name,salary,bouns,dis ,net) values (@MyID,@MySalary,@MyBouns,@MyDis,@MyNet)
+
+	commit transaction
+end try
+
+begin catch
+	rollback tran
+print error_message()
+end catch
+************************** for use
+ $ exec testIdentity null ,'cairo',1,10000
+
+```
+#  🚦  Triggers in SQL
+### *1* for (after) trigger  (tr_) -- for create,update,delete -- make after order only :point_left:
+
+## for create triggers in insert data to table to record events
+```
+$ alter trigger InsertEmployee
+on EmplyeeForTrigger
+for insert
+as
+begin
+declare @MyID int
+declare @MyName nvarchar(50)
+
+select @MyID = EmployeeID ,@MyName = EmployeeName from inserted
+
+insert into tbl_Events (My_Events,EventData,EmployeeID,EmployeeName) values ('Insert' ,GETDATE(),@MyID,@MyName)
+
+end
+
+```
+## for create trigger for delete
+```
+$ alter trigger DeleteEmployee
+on EmplyeeForTrigger
+for delete
+as
+begin
+declare @My_Id int
+declare @My_Name nvarchar(50)
+select @My_Id = EmployeeID ,@My_Name = EmployeeName from deleted
+insert into tbl_Events(My_Events,EventData,EmployeeID,EmployeeName) values ('delete',GETDATE(),@My_Id,@My_Name)
+end
+```
+## for update trigger
+```
+$ create trigger tr_UpdateEmployee
+on EmplyeeForTrigger
+for update
+as
+begin
+declare @My_Id int
+declare @My_NewName nvarchar(50)
+declare @My_OldName nvarchar(50)
+
+select @My_Id = EmployeeID ,@My_OldName = EmployeeName from deleted
+select @My_NewName = EmployeeName from inserted
+
+   insert into tbl_Events(My_Events,EventData,EmployeeID,EmployeeName) values
+   ('update',GETDATE(),@My_Id,'From' + @My_OldName + 'TO' + @My_NewName)
+end
+```
+## for update trigger (multi update) 
+```
+$ alter trigger tr_UpdateEmployee
+on EmplyeeForTrigger
+for update
+as
+begin
+	declare @MyID int
+	declare @MyNewName nvarchar(50)
+	declare @MyOldName nvarchar(50)
+	declare @MyOldCity nvarchar(50)
+	declare @MyNewCity nvarchar(50)
+	declare @MyOldJobID int 
+	declare @MyNewJobID int 
+	declare @State nvarchar(1000)
+
+	select * into #tem from inserted
+
+	while (exists (select EmployeeID from #tem))
+	begin
+	set @state = ' '
+	select top 1 @MyID=EmployeeID , @MyNewName=EmployeeName ,@MyNewCity = city ,@MyNewJobID=JobId from #tem
+	select @MyOldName =EmployeeName ,@MyOldCity=city ,@MyOldJobID=JobId  from deleted where EmployeeID=@MyID
+
+	set @State= 'update '
+
+	if (@MyOldName <> @MyNewName)
+	set @State=@State + ' Name ' + 'To' + @MyNewName 
+
+	if(@MyOldCity <> @MyNewCity)
+	set @State =@State + ' city ' + 'To ' + @MyNewCity
+
+	if(@MyOldJobID <> @MyNewJobID)
+	set @State=@State + ' JobID ' + 'To ' + cast(@MyNewJobID as nvarchar(50))
+
+	insert into tbl_Events (My_Events,EventData,EmployeeID,EmployeeName) 
+	values (@State,GETDATE() ,@MyID,@MyOldName)
+	delete from #tem where EmployeeID=@MyID
+	end
+end
+
+```
+### Instead of Trigger --make after order and new order in behind :point_left:
+## Instead of Trigger (delete)---after you make delete any employee dont delete but add false in active
+```
+$ alter trigger instToDeleEmployee
+on EmplyeeForTrigger
+instead of delete
+as 
+begin
+
+	declare @MyID int
+	select @MyID=EmployeeID from deleted
+	update EmplyeeForTrigger set Active='False' where EmployeeID=@MyID
+
+end
+```
+## insert --after you make insert in view -insert in tabels not in view because view it is not updatable.
+```
+$ create trigger instToInsertEmployee
+on empdet_View
+instead of insert
+as 
+begin
+	declare @MyID int
+	select @MyID=jobID from jobs a join inserted b on a.jobName =b.JobName
+	
+	if(@MyID is null)
+	begin
+	print 'not avalid job'
+	return 
+	end
+
+	insert into employees(EmployeeName,city,jobId) select employeeName,city,@MyID from inserted
+
+end
+```
+## update --after you make update in view -insert in tabels not in view because view it is not updatable.
+```
+$  create trigger instOfUpdateEmployee
+on empdet_View
+instead of update
+as 
+begin
+		if(UPDATE(employeeId))
+		begin
+		print 'you cannot change ID'
+		rollback  
+		end
+
+		if(UPDATE(jobname))
+		begin
+			declare @MyJobID int
+			select @MyJobID=jobId from Jobs a join inserted b
+			on a.jobname = b.jobname
+		end
+
+		if(@MyJobID is null)
+		begin
+			print 'Invalid Job Name'
+			rollback
+		end
+			update Employees set JobId = @MyJobID
+			from inserted a join Employees b
+			on a.employeeId=b.employeeId
+		end
+
+		if(update(emplyeename))
+		begin
+			update Employees set employeename =a.employeename
+			from inserted a join Employees b
+			on a.employeeId=b.employeeId
+		end
+
+		if(UPDATE(city))
+		begin 
+			update Employees set City =a.city
+			from inserted a join Employees b
+			on a.employeeId=b.employeeId
+		end
+end
+```
