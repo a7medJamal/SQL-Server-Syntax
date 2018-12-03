@@ -260,7 +260,7 @@ select Products.ProductName from Products
 ```
 $ create index inx_Employee on employees(employeeid)
 ```
-#  🚦  Views in SQL
+#  🚦  Views in SQL - use views only in report (To View Not Edit) because it is not updatable
 
 ## create new view 
 ```
@@ -448,4 +448,150 @@ $ select convert(nvarchar(8),getdate(),11)
 ## functions to get diffrents of date by cast
 ```
 $ select cast (DAY(getdate()) as nvarchar(2)) + '/'+ cast( MONTH(GETDATE()) as nvarchar(2)) + '/'+ cast( year(GETDATE()) as nvarchar(4)) 
+```
+
+#  🚦  Loops in SQL
+
+## to create loop
+```
+$ declare @Num int
+set @Num =0
+
+while @Num <=5
+begin
+print @Num
+set @Num+=1
+end
+
+```
+#  🚦  Custome Function in SQL
+### Scalar-valued Function
+
+## create new function !!! if need to edit use  **   (alter)
+```
+$ use Northwind
+go 
+create function myfuncion()
+returns int 
+as
+begin
+return 7+12
+end
+```
+## for get your function (dbo. 'this is call schima')
+```
+$ select dbo.myfuncion()
+```
+## use parameters in function
+```
+$ use Northwind
+go 
+alter function myfuncion(@num1 int, @num2 int)
+returns int 
+as
+begin
+return @num1+@num2
+end
+
+```
+
+## use default value in parameters
+```
+$ alter function myfuncion(@num1 int =4, @num2 int)
+returns int 
+as
+begin
+return @num1+@num2
+end
+```
+
+## to create function to select data
+```
+$ create function my_test()
+returns int
+begin
+declare @myNum1 int
+set @myNum1 =5
+
+declare @my_Num2 int
+select @my_Num2 =4
+
+return @myNum1 + @my_Num2 
+
+end
+```
+
+## get data from databse
+```
+$ alter function my_test()
+returns int
+begin
+declare @myNum1 int
+select @myNum1 = EmployeeID from Employees
+
+return  @myNum1 
+end
+```
+## to get data string
+```
+$ alter function my_test(@myid int)
+returns nvarchar(50)
+begin
+declare @myNum1 nvarchar(50)
+select @myNum1 = firstname +' '+ lastname from Employees where EmployeeID=@myid
+
+return  @myNum1 
+end
+```
+## use function (if condition ) in select table
+```
+$ alter function testif (@myCountry nvarchar(50) ,@myRegion nvarchar(50))
+returns nvarchar (255)
+begin
+if (@myCountry is null )
+return 'UNK'
+else
+if (@myCountry= 'usa' or @myCountry= 'canada' or @myCountry= 'mexico' )
+return 'america'
+else
+return 'other country'
+return @myCountry+ ''+ @myRegion
+end
+******************  and use like this
+select  companyname , contactname ,dbo.testif(country,Region) from Customers 
+```
+## use function (case condition ) in select table
+```
+$ create function tesCase(@title nvarchar(15))
+returns nvarchar (15)
+begin
+set @title =
+case @title
+when 'mr.'  then 'mester'
+when 'ms.' then 'miss'
+when 'dr.' then 'doctor'
+else 'other'
+end
+return @title
+end
+
+************** and use like this
+select  firstname , lastname ,TitleOfCourtesy,dbo.tesCase(TitleOfCourtesy) from Employees 
+```
+
+### table-valued Function
+## to make function to return table
+```
+$ create function testtable(@myname nvarchar(50) )
+returns @TblTest table
+(id int ,Name nvarchar(50) ,city nvarchar(50))
+as
+begin
+insert into @TblTest select * from Names where city=@myname
+return ;
+end
+
+************** and use like this
+
+select * from dbo.@TblTest('ahmed')
 ```
