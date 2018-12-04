@@ -1039,3 +1039,143 @@ begin
 		end
 end
 ```
+## Generating MS SQL Server database scripts for backup 
+```
+$server = "myserver.mydomain.com"
+$database = "my_database"
+$schema = "dbo"
+
+$username = "my_user"
+$password = "my_super_secure_pw"
+
+$output_path = ("D:\ServerFolders\Sites\brechtbaekelandt\data\" + (Get-Date -UFormat "%Y\%m\%d"))
+$table_path = "$output_path\Tables\"
+$storedProcs_path = "$output_path\StoredProcedures\"
+$triggers_path = "$output_path\Triggers\"
+$views_path = "$output_path\Views\"
+$udfs_path = "$output_path\UserDefinedFunctions\"
+$textCatalog_path = "$output_path\FullTextCatalogs\"
+$udtts_path = "$output_path\UserDefinedTableTypes\"
+
+$onedrive_output_path = ("E:\OneDrive\Blog Backup\data\" + (Get-Date -UFormat "%Y\%m\%d"))
+$onedrive_table_path = "$onedrive_output_path\Tables\"
+$onedrive_storedProcs_path = "$onedrive_output_path\StoredProcedures\"
+$onedrive_triggers_path = "$onedrive_output_path\Triggers\"
+$onedrive_views_path = "$onedrive_output_path\Views\"
+$onedrive_udfs_path = "$onedrive_output_path\UserDefinedFunctions\"
+$onedrive_textCatalog_path = "$onedrive_output_path\FullTextCatalogs\"
+$onedrive_udtts_path = "$onedrive_output_path\UserDefinedTableTypes\"
+
+[System.Reflection.Assembly]::LoadWithPartialName("Microsoft.SqlServer.SMO") | out-null
+
+$connectionString = ("Server=" + $server + ";Initial Catalog=" + $database + ";User ID=" + $username + ";Password=" + $password + ";Persist Security Info=True;")
+
+Write-Host ("Creating server object with connectionstring" + $connectionString)
+$srv = New-Object "Microsoft.SqlServer.Management.SMO.Server"
+$conContext = $srv.ConnectionContext
+$conContext.ConnectionString = $connectionString
+$srv = New-Object "Microsoft.SqlServer.Management.SMO.Server" $conContext
+$db = New-Object ("Microsoft.SqlServer.Management.SMO.Database")
+$tbl = New-Object ("Microsoft.SqlServer.Management.SMO.Table")
+$scripter = New-Object ("Microsoft.SqlServer.Management.SMO.Scripter") $srv
+
+# Get the database and database objects
+Write-Host "Getting database"
+$db = $srv.Databases[$database]
+
+Write-Host "Getting tables"
+$tbl = $db.tables | Where-object { $_.schema -eq $schema  -and -not $_.IsSystemObject }
+
+Write-Host "Getting stored procedures"
+$storedProcs = $db.StoredProcedures | Where-object { $_.schema -eq $schema -and -not $_.IsSystemObject }
+
+Write-Host "Getting triggers"
+$triggers = $db.Triggers + ($tbl | % { $_.Triggers })
+
+Write-Host "Getting views"
+$views = $db.Views | Where-object { $_.schema -eq $schema }
+
+Write-Host "Getting user defined functions"
+$udfs = $db.UserDefinedFunctions | Where-object { $_.schema -eq $schema -and -not $_.IsSystemObject }
+
+Write-Host "Getting full text catalogs"
+$catlog	= $db.FullTextCatalogs
+
+Write-Host "Getting user defined table types"
+$udtts = $db.UserDefinedTableTypes | Where-object { $_.schema -eq $schema }
+
+# Set scripter options
+Write-Host "Setting the options"
+$scripter.Options.ScriptSchema = $true
+$scripter.Options.ScriptData = $true
+$scripter.Options.NoCommandTerminator = $false
+$scripter.Options.ToFileOnly = $true
+$scripter.Options.AllowSystemObjects = $false
+$scripter.Options.Permissions = $true
+$scripter.Options.DriAllConstraints = $true
+$scripter.Options.SchemaQualify = $true
+$scripter.Options.AnsiFile = $true
+$scripter.Options.SchemaQualifyForeignKeysReferences = $true
+$scripter.Options.Indexes = $true
+$scripter.Options.DriIndexes = $true
+$scripter.Options.DriClustered 	= $true
+$scripter.Options.DriNonClustered = $true
+$scripter.Options.NonClusteredIndexes = $true
+$scripter.Options.ClusteredIndexes = $true
+$scripter.Options.FullTextIndexes = $true
+$scripter.Options.EnforceScriptingOptions = $true
+
+function CopyObjectsToFiles($objects, $outDir) {
+	if (-not (Test-Path $outDir)) {
+		[System.IO.Directory]::CreateDirectory($outDir)
+	}
+
+	foreach ($o in $objects) { 
+		if ($null -ne $o) {
+		
+			$schemaPrefix = ""			
+
+			if ($null -ne $o.Schema -and $o.Schema -ne "") {
+				$schemaPrefix = $o.Schema + "."
+			}
+
+			$scripter.Options.FileName = $outDir + $schemaPrefix + $o.Name + ".sql"
+
+			Write-Host ("Writing " + $scripter.Options.FileName)
+
+			$scripter.EnumScript($o)
+		}
+	}
+}
+
+# Output the scripts
+Write-Host ("Starting backup script generation on server-brecht " + $output_path)
+CopyObjectsToFiles $tbl $table_path
+CopyObjectsToFiles $storedProcs $storedProcs_path
+CopyObjectsToFiles $triggers $triggers_path
+CopyObjectsToFiles $views $views_path
+CopyObjectsToFiles $catlog $textCatalog_path
+CopyObjectsToFiles $udtts $udtts_path
+CopyObjectsToFiles $udfs $udfs_path
+Write-Host ("Finished backup script generation on server-brecht at " + (Get-Date))
+
+Write-Host ("Starting backup script generation on onedrive " + $onedrive_output_path)
+CopyObjectsToFiles $tbl $onedrive_table_path
+CopyObjectsToFiles $storedProcs $onedrive_storedProcs_path
+CopyObjectsToFiles $triggers $onedrive_triggers_path
+CopyObjectsToFiles $views $onedrive_views_path
+CopyObjectsToFiles $catlog $onedrive_textCatalog_path
+CopyObjectsToFiles $udtts $onedrive_udtts_path
+CopyObjectsToFiles $udfs $onedrive_udfs_path
+Write-Host ("Finished backup script generation on onedrive at " + (Get-Date))
+
+
+******************* The output paths in this example will be:
+D:\ServerFolders\Sites\brechtbaekelandt\data\2018\10\28
+E:\OneDrive\Blog Backup\data\2018\10\28
+
+******************* This script also generates the schema and data because I specified these two lines:
+$scripter.Options.ScriptSchema = $true
+$scripter.Options.ScriptData = $true
+
+```
