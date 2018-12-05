@@ -1179,3 +1179,36 @@ $scripter.Options.ScriptSchema = $true
 $scripter.Options.ScriptData = $true
 
 ```
+#  🚦   Tricks.
+## show all database in your system
+```
+$ select * from master..sysdatabases
+```
+## check if database fond or not found
+```
+$ if exists(select * from master..sysdatabases where name='testDb')
+print 'db exists'
+
+else
+create database testdb
+
+```
+## create random numbers
+```
+$ declare @Mynum int;
+declare @Mymax int;
+declare @Mymin int
+
+set @Mymin=1
+set @Mymax=1000000
+
+select @Mynum =ROUND((@Mymin - @Mymax-1) * rand() *(-1) ,0)
+print @Mynum
+
+********************************* small method
+$ SELECT Cast(RAND()*(100000-1)+1 as int);
+```
+## to reseed identity in table
+```
+$ dbcc checkident(table1 ,reseed ,0)
+```
