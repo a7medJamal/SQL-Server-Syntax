@@ -1741,3 +1741,15 @@ $ SELECT * FROM INFORMATION_SCHEMA.VIEW_TABLE_USAGE
 $ SELECT * FROM INFORMATION_SCHEMA.VIEW_COLUMN_USAGE  
   
 ```
+
+## for Contact
+
+``
+agmghazi@hotmail.com
+``
+``
+https://www.facebook.com/agmghazi/
+``
+``
+https://www.linkedin.com/in/agmghazi/
+``
